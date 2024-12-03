@@ -1,97 +1,70 @@
-import React, { useState } from 'react'
-import useEmblaCarousel from 'embla-carousel-react'
-import { AnimatePresence, motion } from 'framer-motion'
-
-import { usePopGamesStreams } from '@/hooks/query/games'
-
-import CardVideo from './card-video'
-import { Thumb } from './carousel-Thumbs'
-import { Skeleton } from './ui/skeleton'
+import { createAsync, query } from "@solidjs/router";
+import CardVideo from "./card-video";
+import { Thumb } from "./carousel-Thumbs";
+import { Skeleton } from "./ui/skeleton";
+import { getTopStreamsByGame } from "@/shared/api/twitchApi/axios";
+import { createResource, createSignal, For } from "solid-js";
 
 type PropType = {
   // slides?: TopGame[]
-  slides?: any
-}
+  slides?: any;
+};
 
-const EmblaCarousel = ({ slides }: PropType) => {
-  const [selectedIndex, setSelectedIndex] = useState(Number(slides[0]?.id))
-  const [emblaMainRef, emblaMainApi] = useEmblaCarousel()
-  const [emblaThumbsRef, emblaThumbsApi] = useEmblaCarousel({
-    containScroll: 'keepSnaps',
-    dragFree: true,
-  })
-  const [idGame, setIdGame] = useState<string>(slides[0]?.id)
+// const getTopGames = query(async (idGame: string, type: string) => {
+//   const res = await getTopStreamsByGame(idGame, type);
+//   return res;
+// }, "users");
 
-  const [type, setType] = useState<'offline' | 'stream' | 'clips'>('stream')
+// export const route = {
+//   preload: () => getTopGames(),
+// };
 
-  const {
-    data: game,
-    refetch,
-    isLoading,
-    isRefetching,
-  } = usePopGamesStreams(selectedIndex, idGame, type)
+const Carousel = ({ slides }: PropType) => {
+  // const games = createAsync(() => getGames());
+  // console.log("SLIDE", slides[0]?.id);
 
-  const onThumbClick = (index: number, type: 'clips' | 'stream') => {
-    try {
-      setSelectedIndex(index)
-      setIdGame(index.toString())
-      setType(type)
-      refetch()
-    } catch (error) {
-      console.error(error)
-    }
-  }
+  // const [idGame, setIdGame] = createSignal(32982);
+  // const [type, setType] = createSignal<"offline" | "stream" | "clips">(
+  //   "stream"
+  // );
+  const [game] = createResource(async () => {
+    const res = await getTopStreamsByGame("32982", "stream");
+    return res;
+  });
 
-  if (!slides) return
+  console.log("SLDIESSWS",slides)
   return (
     <>
-      <div className="relative rounded-xl border-[2px] border-border p-5 lg:pl-[100px] md:ml-[25vw] sm:ml-[460px]">
-        <div className="relative pb-4 ">
-          <div className="overflow-hidden" ref={emblaThumbsRef}>
-            <div className="flex">
-              {slides?.map((game: any, index: number) => (
-                <Thumb
-                  onClick={(index, type) => onThumbClick(index, type)}
-                  selected={Number(game?.id) === selectedIndex}
-                  index={Number(game?.id)}
-                  number={index}
-                  imgSrc={game?.box_art_url.replace('{width}', '320').replace('{height}', '180')}
-                  key={index}
-                />
-              ))}
+      <div class="relative rounded-xl border-[2px] border-border p-5 lg:pl-[100px] md:ml-[25vw] sm:ml-[460px]">
+        <div class="relative pb-4 ">
+          <div class="overflow-hidden">
+            <div class="flex">
+              <For each={slides}>
+                {(game: any, i) => (
+                  <Thumb
+                    number={i()}
+                    // selected={Number(game?.id) === idGame()}
+                    imgSrc={game?.box_art_url
+                      .replace("{width}", "320")
+                      .replace("{height}", "180")}
+                  />
+                )}
+              </For>
+              {/* {slides?.map((game: any, index: number) => (
+              ))} */}
             </div>
           </div>
         </div>
       </div>
-      <div className="container z-999 pt-2" ref={emblaMainRef}>
-        <div className="gridCard">
-          <AnimatePresence>
-            {isLoading && !isRefetching
-              ? Array.from({ length: 50 }, (_, index) => (
-                  <React.Fragment key={`skeleton-${index}`}>
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.1 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0.2, scale: 1 }}
-                      transition={{ duration: 0.4 }}
-                      className="relative mr-2 w-full rounded-2xl"
-                      style={{ paddingBottom: '52%' }}
-                    >
-                      <div className="absolute inset-0 px-2">
-                        <Skeleton className="h-full w-full" />
-                      </div>
-                    </motion.div>
-                  </React.Fragment>
-                ))
-              : game &&
-                game.map((game: any) => (
-                  <CardVideo video={game} type={type} key={game?.id}></CardVideo>
-                ))}
-          </AnimatePresence>
+      <div class="container z-999 pt-2">
+        <div class="gridCard">
+          <For each={game()}>
+            {(game) => <CardVideo video={game} type={"stream"}></CardVideo>}
+          </For>
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default EmblaCarousel
+export default Carousel;

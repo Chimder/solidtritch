@@ -1,25 +1,23 @@
 import { getTopGames } from "@/shared/api/twitchApi/axios";
 import { DialogInput } from "@/components/dialog-input";
 import Loading from "@/components/loading";
-import {  lazy, Suspense } from "solid-js";
+import { lazy, Suspense } from "solid-js";
 import { Button } from "@/components/ui/button";
 import { createAsync, query } from "@solidjs/router";
 
-// const EmblaCarousel = lazy(() => import("@/components/carousel"));
+const Carousel = lazy(() => import("@/components/carousel"));
 
 const getGames = query(async () => {
-    const res = await getTopGames();
-  return  res;
+  const res = await getTopGames();
+  return res;
 }, "users");
 
 export const route = {
   preload: () => getGames(),
 };
 export default function Home() {
-
   const games = createAsync(() => getGames());
 
-  console.log("Load", games);
   // if (!games) return <Loading></Loading>
   return (
     <Suspense fallback={<Loading />}>
@@ -49,7 +47,8 @@ export default function Home() {
               Top streams Now
             </h1>
           </div>
-          {/* <EmblaCarousel slides={games} /> */}
+
+          <Carousel slides={games()} />
         </section>
       </main>
     </Suspense>

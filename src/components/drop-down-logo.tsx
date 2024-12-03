@@ -1,35 +1,31 @@
-import { ReactNode } from "react";
-import { useAccountSingOut } from "@/features/auth/useSession";
-
 import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 interface Props {
-	children: ReactNode;
+  children: any;
 }
 export function DropDownLogo({ children }: Props) {
-	const { mutate } = useAccountSingOut();
-	return (
-		<DropdownMenu>
-			<DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
-			<DropdownMenuContent className="w-56">
-				<DropdownMenuLabel>My Account</DropdownMenuLabel>
-				<DropdownMenuSeparator />
-				<DropdownMenuItem>GitHub</DropdownMenuItem>
-				<DropdownMenuItem className="">Support</DropdownMenuItem>
-				<DropdownMenuItem
-					onClick={() => mutate()}
-					className="flex items-center justify-center bg-red-400"
-				>
-					LogOut
-				</DropdownMenuItem>
-			</DropdownMenuContent>
-		</DropdownMenu>
-	);
+  // const { mutate } = useAccountSingOut();
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger>{children}</DropdownMenuTrigger>
+      <DropdownMenuContent class="w-56">
+        {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem>GitHub</DropdownMenuItem>
+        <DropdownMenuItem class="">Support</DropdownMenuItem>
+        <DropdownMenuItem
+          // onClick={() => mutate()}
+          class="flex items-center justify-center bg-red-400"
+        >
+          LogOut
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }
